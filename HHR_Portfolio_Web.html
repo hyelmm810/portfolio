@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>황혜림 — Operations PM · Process Architect</title>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-LK3J594FQB"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-LK3J594FQB', { send_page_view: false });
+</script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Gowun+Batang:wght@400;700&display=swap');
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
@@ -39,6 +46,15 @@
 }
 html,body{width:100%;height:100%;overflow:hidden;background:#000;}
 body{font-family:'Space Mono','Pretendard',monospace;color:#b8bfcc;cursor:none;}
+html,body,*{
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
+}
+img,svg,canvas{
+  -webkit-user-drag:none;
+  user-drag:none;
+}
 
 /* CURSOR */
 #cur{position:fixed;width:5px;height:5px;background:#fff;border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:difference;}
@@ -2822,6 +2838,7 @@ body.ticket-morphing #ov-about #about-card *{
 .ft-tag{font-size:var(--fs-caption);letter-spacing:.4em;color:rgba(200,218,255,.4);text-transform:uppercase;font-family:'Space Mono',monospace;text-shadow:0 0 8px rgba(180,210,255,.2);margin-bottom:10px;}
 .ft-title{font-family:'Cormorant Garamond',serif;font-size:var(--fs-section-title);font-weight:300;color:#eef0f4;line-height:1.05;}
 .ft-title em{font-style:normal;}
+.nowrap{white-space:nowrap;}
 .featured-cases{display:flex;gap:16px;align-items:flex-end;justify-content:center;width:100%;}
 .ft-case{position:relative;flex:1;max-width:300px;aspect-ratio:.56;cursor:pointer;transition:transform .5s cubic-bezier(.16,1,.3,1);animation:ftFloat 20s ease-in-out infinite;}
 .ft-case.center{max-width:300px;}
@@ -3658,7 +3675,7 @@ body.ticket-morphing #ov-about #about-card *{
           <div class="ft-data">
             <div class="ft-row lit"><span>Origin</span><span>Airbnb</span></div>
             <div class="ft-row"><span>Brewing</span><span>2025.07</span></div>
-            <div class="ft-row"><span>Detail</span><span>Airbnb 호스트 대상 웨비나 진행.<br>Notion 활용 운영 관리법 강연.</span></div>
+            <div class="ft-row"><span>Detail</span><span><span class="nowrap">Airbnb 호스트 대상 웨비나 진행.</span><br>Notion 활용 운영 관리법 강연.</span></div>
           </div>
         </div>
       </div>
@@ -4220,9 +4237,83 @@ body.ticket-morphing #ov-about #about-card *{
 <script>
 
 /* ══════════════════════════════════════
+   BASIC CONTENT PROTECTION + ANALYTICS
+══════════════════════════════════════ */
+const GA_MEASUREMENT_ID = 'G-LK3J594FQB';
+const SECTION_NAMES = ['entrance','lobby','exhibition','lounge','atelier','souvenir'];
+let analyticsSection = 0;
+let analyticsSectionStartedAt = performance.now();
+const hoverSeen = new Set();
+
+function trackEvent(name, params = {}){
+  if(typeof window.gtag !== 'function') return;
+  window.gtag('event', name, {
+    page_title: document.title,
+    page_location: location.href,
+    section_index: section,
+    section_name: SECTION_NAMES[section] || 'unknown',
+    ...params
+  });
+}
+function trackSectionTime(reason = 'section_change'){
+  const duration = Math.max(0, Math.round(performance.now() - analyticsSectionStartedAt));
+  trackEvent('section_dwell_time', {
+    previous_section_index: analyticsSection,
+    previous_section_name: SECTION_NAMES[analyticsSection] || 'unknown',
+    duration_ms: duration,
+    duration_sec: Math.round(duration / 1000),
+    reason
+  });
+}
+function trackSectionView(nextSection){
+  analyticsSection = nextSection;
+  analyticsSectionStartedAt = performance.now();
+  trackEvent('virtual_page_view', {
+    page_path: '/' + (SECTION_NAMES[nextSection] || 'unknown'),
+    screen_name: SECTION_NAMES[nextSection] || 'unknown'
+  });
+}
+
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('copy', e => e.preventDefault());
+document.addEventListener('cut', e => e.preventDefault());
+document.addEventListener('selectstart', e => e.preventDefault());
+document.addEventListener('dragstart', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+  const key = e.key.toLowerCase();
+  if((e.metaKey || e.ctrlKey) && ['s','u','p','c','x','a'].includes(key)){
+    e.preventDefault();
+  }
+});
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('img').forEach(img => img.setAttribute('draggable', 'false'));
+  trackSectionView(section || 0);
+});
+document.addEventListener('click', e => {
+  const target = e.target.closest('a,button,.lb-item-guide,.ft-case,.at-jar,.gift-box');
+  if(!target) return;
+  trackEvent('ui_click', {
+    element_tag: target.tagName.toLowerCase(),
+    element_id: target.id || '',
+    element_class: target.className ? String(target.className).slice(0,120) : '',
+    element_text: (target.innerText || target.getAttribute('aria-label') || '').trim().slice(0,120),
+    href: target.href || ''
+  });
+});
+document.addEventListener('visibilitychange', () => {
+  if(document.hidden) trackSectionTime('visibility_hidden');
+  else trackSectionView(section || 0);
+});
+window.addEventListener('beforeunload', () => {
+  trackSectionTime('beforeunload');
+  trackEvent('site_exit', { exit_section_name: SECTION_NAMES[section] || 'unknown' });
+});
+
+/* ══════════════════════════════════════
    GIFT BOX JS
 ══════════════════════════════════════ */
 function openGift(){
+  trackEvent('souvenir_gift_open');
   const box = document.getElementById('giftBox');
   if(box.classList.contains('opening')) return;
 
@@ -4972,6 +5063,7 @@ function moveByDirection(dir){
 
 function enterSection(s){
   if(transitioning) return;
+  if(s !== section) trackSectionTime('section_change');
   transitioning = true;
   wheelAcc = 0;
   touchAcc = 0;
@@ -4989,6 +5081,7 @@ function enterSection(s){
   }
 
   section = s;
+  trackSectionView(s);
   if(s === 0){
     setHomeTearProgress(0);
     homeExitPending = false;
@@ -5156,6 +5249,7 @@ window.goTo = function(n){
 };
 function goSection(s){ enterSection(s); }
 window.goToHall = function(idx){
+  trackEvent('hall_select', { hall_index: idx, hall_name: `hall_${String(idx + 1).padStart(2,'0')}` });
   pendingGalleryTarget = Math.max(0, Math.min(GALLERY_TOTAL, idx));
   galleryTarget = pendingGalleryTarget;
   lerpedGallery = pendingGalleryTarget;
@@ -5180,6 +5274,7 @@ function updateNavDots(idx){
 function updateExhibitInfo(idx){
   if(idx===lastActiveIdx)return;
   lastActiveIdx=idx;
+  trackEvent('hall_view', { hall_index: idx, hall_name: `hall_${String(idx + 1).padStart(2,'0')}` });
   updateNavDots(idx);
   const ex=EX[idx];
   const hallNo = String(idx + 1).padStart(2,'0');
@@ -5398,7 +5493,13 @@ lerpedGallery=0;
     const cvs    = createCanvas(el);
     const engine = new SteamEngine(cvs);
 
-    const startSteam = () => { el.classList.add('is-steaming'); engine.start(); };
+    const startSteam = () => {
+      const item = (el.querySelector('.ft-case-num')?.textContent || '').trim();
+      const key = `lounge:${item}`;
+      if(!hoverSeen.has(key)){ hoverSeen.add(key); trackEvent('lounge_hover', { item_name: item }); }
+      el.classList.add('is-steaming');
+      engine.start();
+    };
     const stopSteam = () => { el.classList.remove('is-steaming'); engine.stop(); };
     el.addEventListener('mouseenter', startSteam);
     el.addEventListener('mouseleave', stopSteam);
@@ -5804,7 +5905,12 @@ lerpedGallery=0;
     const jars = Array.from(row.querySelectorAll(":scope > .at-jar"));
     jars.forEach((jar) => {
       const label = jar.querySelector(".at-label");
-      const on = () => jar.classList.add("is-hover");
+      const on = () => {
+        const name = jar.querySelector('.at-label-name')?.dataset.hover || jar.querySelector('.at-label-name')?.dataset.default || '';
+        const key = `atelier:${name}`;
+        if(!hoverSeen.has(key)){ hoverSeen.add(key); trackEvent('atelier_hover', { item_name: name }); }
+        jar.classList.add("is-hover");
+      };
       const off = () => jar.classList.remove("is-hover");
       jar.addEventListener("pointerenter", on);
       jar.addEventListener("pointerleave", off);
@@ -5819,6 +5925,15 @@ lerpedGallery=0;
   placeFixedLabels();
   window.addEventListener("resize", placeFixedLabels);
 })();
+
+document.querySelectorAll('.sv-link-row').forEach(link => {
+  link.addEventListener('click', () => {
+    trackEvent('contact_click', {
+      contact_type: (link.querySelector('span')?.textContent || '').trim().toLowerCase(),
+      contact_label: (link.querySelector('strong')?.textContent || '').trim()
+    });
+  });
+});
 
 /* ════════════════════════════════════
    DEV-ONLY ATELIER CUBE TUNER (?tune=1)
