@@ -2828,7 +2828,7 @@ body.ticket-morphing #ov-about #about-card *{
 .ft-case:nth-child(2){animation-delay:-2s;}
 .ft-case:nth-child(3){animation-delay:-4s;}
 .ft-case:nth-child(4){animation-delay:-6s;}
-.ft-case:hover{transform:translateY(-10px) scale(1.01);}
+.ft-case:hover,.ft-case.is-steaming{transform:translateY(-10px) scale(1.01);}
 @keyframes ftFloat{
   0%,100%{transform:translateY(0);}
   50%{transform:translateY(-2px);}
@@ -3072,7 +3072,8 @@ body.ticket-morphing #ov-about #about-card *{
   transition:opacity .35s ease;
   z-index:10;
 }
-.ft-case:hover .ft-steam-canvas{
+.ft-case:hover .ft-steam-canvas,
+.ft-case.is-steaming .ft-steam-canvas{
   opacity:1;
 }
 /* top/bottom rim & plinth handled by SVG */
@@ -3152,7 +3153,8 @@ body.ticket-morphing #ov-about #about-card *{
   filter:drop-shadow(0 6px 24px rgba(150,190,255,.18)) drop-shadow(0 0 10px rgba(180,210,255,.10));
   transition:transform .36s cubic-bezier(.22,1,.36,1),filter .36s;
 }
-.at-jar:hover .at-bottle-svg{
+.at-jar:hover .at-bottle-svg,
+.at-jar.is-hover .at-bottle-svg{
   transform:translateX(-50%) translateY(-12px) scaleY(var(--bottle-scale-y));
   filter:drop-shadow(0 10px 36px rgba(150,190,255,.38)) drop-shadow(0 0 20px rgba(180,210,255,.24));
 }
@@ -3169,7 +3171,8 @@ body.ticket-morphing #ov-about #about-card *{
   pointer-events:none;
   transition:transform .36s cubic-bezier(.22,1,.36,1);
 }
-.at-jar:hover .at-cubes{
+.at-jar:hover .at-cubes,
+.at-jar.is-hover .at-cubes{
   transform:translateX(-50%) translateY(-12px);
 }
 /* 2-column stacked variants (jar 02, 03, 05) */
@@ -3202,7 +3205,8 @@ body.ticket-morphing #ov-about #about-card *{
   z-index:3;pointer-events:none;
   transition:transform .36s cubic-bezier(.22,1,.36,1);
 }
-.at-jar:hover .at-glass-front{
+.at-jar:hover .at-glass-front,
+.at-jar.is-hover .at-glass-front{
   transform:translateX(-50%) translateY(-12px) scaleY(var(--bottle-scale-y));
 }
 
@@ -3236,7 +3240,8 @@ body.ticket-morphing #ov-about #about-card *{
   transform:rotateX(var(--rx,18deg)) rotateY(var(--ry,20deg)) rotateZ(var(--rz,0deg));
   transition:transform .4s ease;
 }
-.at-jar:hover .cube{
+.at-jar:hover .cube,
+.at-jar.is-hover .cube{
   transform:
     rotateX(calc(var(--rx,18deg) + 3deg))
     rotateY(calc(var(--ry,20deg) + 6deg))
@@ -3305,22 +3310,25 @@ body.ticket-morphing #ov-about #about-card *{
   top:0;
   transform:translateX(-50%);
   z-index:220;
-  pointer-events:none;
+  pointer-events:auto;
   transition:background .24s ease,border-color .24s ease,box-shadow .24s ease,color .24s ease;
 }
 .at-label-name{font-size:var(--fs-meta);color:rgba(220,236,255,.9);font-family:'Space Mono',monospace;letter-spacing:.06em;}
 .at-label-name::after{
   content:attr(data-default);
 }
-.at-jar:hover .at-label{
+.at-jar:hover .at-label,
+.at-jar.is-hover .at-label{
   background:rgba(16,26,48,.94);
   border-color:rgba(220,238,255,.42);
   box-shadow:0 0 18px rgba(170,204,255,.22), inset 0 0 18px rgba(210,230,255,.05);
 }
-.at-jar:hover .at-label-name{
+.at-jar:hover .at-label-name,
+.at-jar.is-hover .at-label-name{
   color:#f3f7ff;
 }
-.at-jar:hover .at-label-name::after{
+.at-jar:hover .at-label-name::after,
+.at-jar.is-hover .at-label-name::after{
   content:attr(data-hover);
 }
 
@@ -5155,6 +5163,14 @@ window.goToHall = function(idx){
   scheduleRaf();
 };
 
+document.querySelectorAll('.lobby-panel-guide .lb-item-guide').forEach((item, idx) => {
+  item.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    window.goToHall(idx);
+  });
+});
+
 let lastActiveIdx=-1;
 function updateNavDots(idx){
   document.querySelectorAll('.nav-dot').forEach((dot,i)=>{
@@ -5382,8 +5398,12 @@ lerpedGallery=0;
     const cvs    = createCanvas(el);
     const engine = new SteamEngine(cvs);
 
-    el.addEventListener('mouseenter', ()=>engine.start());
-    el.addEventListener('mouseleave', ()=>engine.stop());
+    const startSteam = () => { el.classList.add('is-steaming'); engine.start(); };
+    const stopSteam = () => { el.classList.remove('is-steaming'); engine.stop(); };
+    el.addEventListener('mouseenter', startSteam);
+    el.addEventListener('mouseleave', stopSteam);
+    el.addEventListener('pointerenter', startSteam);
+    el.addEventListener('pointerleave', stopSteam);
   });
 })();
 
@@ -5780,6 +5800,22 @@ lerpedGallery=0;
     });
   };
 
+  const bindAtelierHover = () => {
+    const jars = Array.from(row.querySelectorAll(":scope > .at-jar"));
+    jars.forEach((jar) => {
+      const label = jar.querySelector(".at-label");
+      const on = () => jar.classList.add("is-hover");
+      const off = () => jar.classList.remove("is-hover");
+      jar.addEventListener("pointerenter", on);
+      jar.addEventListener("pointerleave", off);
+      if(label){
+        label.addEventListener("pointerenter", on);
+        label.addEventListener("pointerleave", off);
+      }
+    });
+  };
+
+  bindAtelierHover();
   placeFixedLabels();
   window.addEventListener("resize", placeFixedLabels);
 })();
