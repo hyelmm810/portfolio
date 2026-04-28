@@ -5613,15 +5613,15 @@ lerpedGallery=0;
 
   applyAtelierCubeCuration();
 
+  const ATELIER_DEFAULT_TUNE = [{"rx":10,"ry":-14,"rz":6,"tx":0,"ty":9,"wr":0,"zi":4,"ord":4,"tuneLeft":33.5,"tuneTop":90,"col":1,"gridRow":1},{"rx":8,"ry":14,"rz":-11,"tx":16,"ty":0,"wr":0,"zi":5,"ord":3,"tuneLeft":25.5,"tuneTop":59,"col":1,"gridRow":1},{"rx":0,"ry":8,"rz":3,"tx":-15,"ty":-7,"wr":0,"zi":6,"ord":2,"tuneLeft":30.5,"tuneTop":28,"col":1,"gridRow":1},{"rx":-11,"ry":-15,"rz":-10,"tx":7,"ty":-16,"wr":0,"zi":7,"ord":1,"tuneLeft":36.5,"tuneTop":-3,"col":1,"gridRow":1},{"rx":-5,"ry":15,"rz":-30,"tx":-17,"ty":6,"wr":0,"zi":6,"ord":1,"tuneLeft":30.5,"tuneTop":-2,"col":1,"gridRow":1},{"rx":-10,"ry":-20,"rz":-4,"tx":18,"ty":0,"wr":0,"zi":5,"ord":2,"tuneLeft":35.5,"tuneTop":29,"col":1,"gridRow":1},{"rx":12,"ry":10,"rz":6,"tx":-8,"ty":9,"wr":0,"zi":4,"ord":3,"tuneLeft":33.5,"tuneTop":60,"col":1,"gridRow":1},{"rx":6,"ry":-12,"rz":4,"tx":5,"ty":116,"wr":0,"zi":4,"ord":0,"tuneLeft":0,"tuneTop":-1.5,"col":1,"gridRow":3},{"rx":-16,"ry":-15,"rz":-2,"tx":5,"ty":112,"wr":0,"zi":5,"ord":0,"tuneLeft":36,"tuneTop":-0.5,"col":2,"gridRow":1},{"rx":-10,"ry":-15,"rz":-6,"tx":8,"ty":-34,"wr":0,"zi":2,"ord":0,"tuneLeft":-1,"tuneTop":27.5,"col":1,"gridRow":1},{"rx":7,"ry":9,"rz":10,"tx":-41,"ty":10,"wr":0,"zi":10,"ord":0,"tuneLeft":42,"tuneTop":27.5,"col":2,"gridRow":1},{"rx":-15,"ry":-18,"rz":-14,"tx":3,"ty":7,"wr":0,"zi":5,"ord":0,"tuneLeft":1,"tuneTop":64.5,"col":1,"gridRow":1},{"rx":-6,"ry":12,"rz":4,"tx":3,"ty":13,"wr":0,"zi":13,"ord":0,"tuneLeft":40,"tuneTop":64.5,"col":2,"gridRow":1},{"rx":-1,"ry":1,"rz":7,"tx":42,"ty":-55,"wr":0,"zi":11,"ord":0,"tuneLeft":0,"tuneTop":96.5,"col":1,"gridRow":1},{"rx":-6,"ry":-9,"rz":11,"tx":3,"ty":-90,"wr":0,"zi":9,"ord":0,"tuneLeft":41,"tuneTop":96.5,"col":2,"gridRow":1},{"rx":-9,"ry":12,"rz":-4,"tx":-3,"ty":81,"wr":0,"zi":5,"ord":0,"tuneLeft":42,"tuneTop":-5.5,"col":2,"gridRow":1},{"rx":-8,"ry":-15,"rz":12,"tx":2,"ty":40,"wr":0,"zi":16,"ord":0,"tuneLeft":0,"tuneTop":32.5,"col":1,"gridRow":1},{"rx":-2,"ry":6,"rz":16,"tx":1,"ty":2,"wr":0,"zi":11,"ord":0,"tuneLeft":42,"tuneTop":33.5,"col":2,"gridRow":1},{"rx":-18,"ry":-14,"rz":-30,"tx":4,"ty":-32,"wr":0,"zi":15,"ord":0,"tuneLeft":-2,"tuneTop":62.5,"col":1,"gridRow":1},{"rx":6,"ry":14,"rz":10,"tx":-4,"ty":117,"wr":0,"zi":5,"ord":0,"tuneLeft":41,"tuneTop":-7.5,"col":2,"gridRow":1},{"rx":-6,"ry":-17,"rz":-6,"tx":3,"ty":42,"wr":0,"zi":0,"ord":0,"tuneLeft":-1,"tuneTop":29.5,"col":2,"gridRow":1},{"rx":-8,"ry":9,"rz":-10,"tx":5,"ty":0,"wr":0,"zi":20,"ord":0,"tuneLeft":-4.8,"tuneTop":32.5,"col":1,"gridRow":1},{"rx":5,"ry":-5,"rz":-5,"tx":1,"ty":6,"wr":0,"zi":4,"ord":0,"tuneLeft":45.8,"tuneTop":66.5,"col":3,"gridRow":1},{"rx":-8,"ry":16,"rz":10,"tx":-8,"ty":-30,"wr":0,"zi":9,"ord":0,"tuneLeft":45.8,"tuneTop":62.5,"col":3,"gridRow":1},{"rx":-12,"ry":-25,"rz":-10,"tx":29,"ty":-100,"wr":0,"zi":15,"ord":0,"tuneLeft":-1,"tuneTop":94.5,"col":1,"gridRow":1},{"rx":4,"ry":-12,"rz":2,"tx":8,"ty":15,"wr":0,"zi":6,"ord":0,"tuneLeft":-4.8,"tuneTop":97.5,"col":1,"gridRow":1}];
+
   const applySavedAtelierTune = () => {
     const params = new URLSearchParams(window.location.search);
     if(params.get("tune") === "1") return;
 
-    let payload = null;
-    try{
-      payload = JSON.parse(localStorage.getItem("hhr_atelier_cube_tune_v2") || "null");
-    }catch{}
-    if(!Array.isArray(payload)) return;
+    // Production must not depend on browser storage; stale deployed-domain localStorage
+    // was the reason Atelier stacks kept reverting. The baked Safari tune is the source of truth.
+    const payload = ATELIER_DEFAULT_TUNE;
 
     const wraps = Array.from(row.querySelectorAll(".cube-wrap"));
     if(payload.length < wraps.length) return;
@@ -5644,41 +5644,13 @@ lerpedGallery=0;
         zi:state.zi,
         ord:state.ord,
         col:state.col,
-        row:state.gridRow
+        gridRow:state.gridRow
       });
       if(state.tuneLeft !== undefined) wrap.style.setProperty("--tune-left", state.tuneLeft + "px");
       if(state.tuneTop !== undefined) wrap.style.setProperty("--tune-top", state.tuneTop + "px");
     });
 
     document.body.classList.add("atelier-saved-tune");
-
-    const alignSavedStacksToFirst = () => {
-      const jars = Array.from(row.querySelectorAll(":scope > .at-jar"));
-      const getStackBottom = (jar) => {
-        const cubes = Array.from(jar.querySelectorAll(".cube-wrap"));
-        if(!cubes.length) return null;
-        return Math.max(...cubes.map(cube => cube.getBoundingClientRect().bottom));
-      };
-      const shiftStack = (jar, delta) => {
-        jar.querySelectorAll(".cube-wrap").forEach(cube => {
-          const currentTop = parseFloat(cube.style.getPropertyValue("--tune-top")) || 0;
-          cube.style.setProperty("--tune-top", (currentTop + delta).toFixed(1) + "px");
-        });
-      };
-      const targetBottom = getStackBottom(jars[0]);
-      [2, 3, 4].forEach(index => {
-        const bottom = getStackBottom(jars[index]);
-        if(targetBottom === null || bottom === null) return;
-        const fineTune = (index === 2 || index === 3) ? -10 : 0;
-        shiftStack(jars[index], targetBottom - bottom + fineTune);
-      });
-    };
-
-    requestAnimationFrame(() => {
-      alignSavedStacksToFirst();
-      requestAnimationFrame(alignSavedStacksToFirst);
-      setTimeout(alignSavedStacksToFirst, 80);
-    });
   };
 
   applySavedAtelierTune();
@@ -5691,9 +5663,9 @@ lerpedGallery=0;
     const fixed = [
       { h:184, p:[[42,128],[33,91],[46,57],[57,26]] },
       { h:170, p:[[28,68],[47,96],[36,128]] },
-      { h:184, p:[[26,136],[64,136],[21,101],[60,102],[26,68],[63,69],[31,34],[65,27]] },
-      { h:150, p:[[58,108],[23,101],[58,68],[25,45]] },
-      { h:180, p:[[21,134],[61,134],[21,102],[61,102],[24,70],[63,70],[43,40]] }
+      { h:206, p:[[14,156],[52,156],[9,121],[48,122],[14,88],[51,89],[19,54],[53,47]] },
+      { h:166, p:[[46,125],[12,118],[46,85],[13,62]] },
+      { h:198, p:[[10,148],[50,148],[10,116],[50,116],[13,84],[52,84],[31,54]] }
     ];
 
     current.forEach((jar, jarIndex) => {
@@ -5715,7 +5687,8 @@ lerpedGallery=0;
     document.body.classList.add("atelier-production-fixed");
   };
 
-  applyAtelierProductionFixedLayout();
+  // Disabled: exact Safari-tuned coordinates above are now the production source of truth.
+  // applyAtelierProductionFixedLayout();
 
   const getBottlePathBottomY = (jar) => {
     const svg = jar.querySelector(".at-bottle-svg");
