@@ -3157,7 +3157,7 @@ body.ticket-morphing #ov-about #about-card *{
 .at-cubes{
   position:absolute;
   bottom:calc(var(--bottle-bottom) + 46px);    /* keep stack tied to bottle floor */
-  left:50%;transform:translateX(-50%);
+  left:50%;transform:translateX(-50%) translateY(var(--stack-shift-y,0px));
   width:96px;
   display:flex;flex-direction:column;align-items:center;
   gap:1px;
@@ -3166,7 +3166,7 @@ body.ticket-morphing #ov-about #about-card *{
   transition:transform .36s cubic-bezier(.22,1,.36,1);
 }
 .at-jar:hover .at-cubes{
-  transform:translateX(-50%) translateY(-12px);
+  transform:translateX(-50%) translateY(calc(var(--stack-shift-y,0px) - 12px));
 }
 /* 2-column stacked variants (jar 02, 03, 05) */
 .at-cubes.at-cubes-2col{
@@ -5661,6 +5661,41 @@ lerpedGallery=0;
   };
 
   applySavedAtelierTune();
+
+  const alignAtelierStackBaselines = () => {
+    const current = Array.from(row.querySelectorAll(":scope > .at-jar"));
+    if(current.length !== 5) return;
+
+    current.forEach(jar => {
+      const holder = jar.querySelector(".at-cubes");
+      if(holder) holder.style.setProperty("--stack-shift-y", "0px");
+    });
+
+    const stackBottom = (jar) => {
+      const cubes = Array.from(jar.querySelectorAll(".cube-wrap"));
+      if(!cubes.length) return null;
+      return Math.max(...cubes.map(cube => cube.getBoundingClientRect().bottom));
+    };
+
+    const target = stackBottom(current[0]);
+    if(target === null) return;
+
+    [2, 3, 4].forEach(index => {
+      const holder = current[index].querySelector(".at-cubes");
+      const bottom = stackBottom(current[index]);
+      if(!holder || bottom === null) return;
+      const delta = target - bottom;
+      holder.style.setProperty("--stack-shift-y", delta.toFixed(1) + "px");
+    });
+  };
+
+  requestAnimationFrame(() => {
+    alignAtelierStackBaselines();
+    requestAnimationFrame(alignAtelierStackBaselines);
+    setTimeout(alignAtelierStackBaselines, 120);
+    window.addEventListener("load", alignAtelierStackBaselines, { once:true });
+    window.addEventListener("resize", alignAtelierStackBaselines);
+  });
 
   const getBottlePathBottomY = (jar) => {
     const svg = jar.querySelector(".at-bottle-svg");
