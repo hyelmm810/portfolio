@@ -1383,6 +1383,27 @@ body.atelier-tune .cube-wrap.tune-selected .cube-face.f-front{
     inset 0 0 0 1px rgba(255,255,255,.8),
     0 0 18px rgba(150,200,255,.55);
 }
+
+/* Production Atelier layout: fixed coordinates, no localStorage/grid fallback. */
+body.atelier-production-fixed .at-cubes{
+  display:block;
+  height:var(--fixed-stack-h, 190px);
+}
+body.atelier-production-fixed .at-cubes.at-cubes-2col{
+  display:block;
+}
+body.atelier-production-fixed .cube-wrap{
+  position:absolute;
+  left:var(--fixed-left, 0px);
+  top:var(--fixed-top, 0px);
+  margin:0;
+  transform:rotate(var(--wr,0deg));
+}
+body.atelier-production-fixed .at-cubes.at-cubes-2col .cube-wrap,
+body.atelier-production-fixed .at-cubes.at-cubes-2col .cube-wrap:nth-child(odd),
+body.atelier-production-fixed .at-cubes.at-cubes-2col .cube-wrap:nth-child(even){
+  transform:rotate(var(--wr,0deg));
+}
 .cube-tuner{
   position:fixed;
   right:22px;
@@ -3157,7 +3178,7 @@ body.ticket-morphing #ov-about #about-card *{
 .at-cubes{
   position:absolute;
   bottom:calc(var(--bottle-bottom) + 46px);    /* keep stack tied to bottle floor */
-  left:50%;transform:translateX(-50%) translateY(var(--stack-shift-y,0px));
+  left:50%;transform:translateX(-50%);
   width:96px;
   display:flex;flex-direction:column;align-items:center;
   gap:1px;
@@ -3166,7 +3187,7 @@ body.ticket-morphing #ov-about #about-card *{
   transition:transform .36s cubic-bezier(.22,1,.36,1);
 }
 .at-jar:hover .at-cubes{
-  transform:translateX(-50%) translateY(calc(var(--stack-shift-y,0px) - 12px));
+  transform:translateX(-50%) translateY(-12px);
 }
 /* 2-column stacked variants (jar 02, 03, 05) */
 .at-cubes.at-cubes-2col{
@@ -5662,40 +5683,38 @@ lerpedGallery=0;
 
   applySavedAtelierTune();
 
-  const alignAtelierStackBaselines = () => {
+  const applyAtelierProductionFixedLayout = () => {
+    if(new URLSearchParams(window.location.search).get("tune") === "1") return;
     const current = Array.from(row.querySelectorAll(":scope > .at-jar"));
     if(current.length !== 5) return;
 
-    current.forEach(jar => {
+    const fixed = [
+      { h:184, p:[[42,128],[33,91],[46,57],[57,26]] },
+      { h:170, p:[[28,68],[47,96],[36,128]] },
+      { h:176, p:[[31,116],[67,116],[22,82],[63,83],[28,49],[66,50],[34,18],[68,-8]] },
+      { h:142, p:[[56,92],[24,68],[53,42],[20,15]] },
+      { h:166, p:[[24,116],[61,116],[24,84],[62,83],[32,52],[65,51],[50,18]] }
+    ];
+
+    current.forEach((jar, jarIndex) => {
+      const spec = fixed[jarIndex];
+      if(!spec) return;
       const holder = jar.querySelector(".at-cubes");
-      if(holder) holder.style.setProperty("--stack-shift-y", "0px");
+      const wraps = Array.from(jar.querySelectorAll(".cube-wrap"));
+      if(!holder) return;
+      holder.style.setProperty("--fixed-stack-h", spec.h + "px");
+      wraps.forEach((wrap, cubeIndex) => {
+        const pos = spec.p[cubeIndex];
+        if(!pos) return;
+        wrap.style.setProperty("--fixed-left", pos[0] + "px");
+        wrap.style.setProperty("--fixed-top", pos[1] + "px");
+      });
     });
 
-    const stackBottom = (jar) => {
-      const cubes = Array.from(jar.querySelectorAll(".cube-wrap"));
-      if(!cubes.length) return null;
-      return Math.max(...cubes.map(cube => cube.getBoundingClientRect().bottom));
-    };
-
-    const target = stackBottom(current[0]);
-    if(target === null) return;
-
-    [2, 3, 4].forEach(index => {
-      const holder = current[index].querySelector(".at-cubes");
-      const bottom = stackBottom(current[index]);
-      if(!holder || bottom === null) return;
-      const delta = target - bottom;
-      holder.style.setProperty("--stack-shift-y", delta.toFixed(1) + "px");
-    });
+    document.body.classList.add("atelier-production-fixed");
   };
 
-  requestAnimationFrame(() => {
-    alignAtelierStackBaselines();
-    requestAnimationFrame(alignAtelierStackBaselines);
-    setTimeout(alignAtelierStackBaselines, 120);
-    window.addEventListener("load", alignAtelierStackBaselines, { once:true });
-    window.addEventListener("resize", alignAtelierStackBaselines);
-  });
+  applyAtelierProductionFixedLayout();
 
   const getBottlePathBottomY = (jar) => {
     const svg = jar.querySelector(".at-bottle-svg");
