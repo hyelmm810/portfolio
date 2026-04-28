@@ -2124,6 +2124,7 @@ body.ticket-morphing #ov-about #about-card *{
 .sv-contact-panel{
   padding-top:94px;
   padding-left:26px;
+  transform:translateX(-30px);
 }
 .sv-role{
   font-family:'Pretendard','Space Mono',sans-serif;
@@ -2136,7 +2137,7 @@ body.ticket-morphing #ov-about #about-card *{
   display:flex;
   flex-direction:column;
   gap:8px;
-  width:calc(100% + 18px);
+  width:calc(100% + 48px);
 }
 .sv-link-row{
   position:relative;
@@ -2145,7 +2146,7 @@ body.ticket-morphing #ov-about #about-card *{
   gap:10px;
   align-items:center;
   min-height:38px;
-  padding:0 34px 0 10px;
+  padding:0 44px 0 0;
   border:1px solid transparent;
   border-bottom-color:rgba(255,255,255,.06);
   text-decoration:none;
@@ -2189,26 +2190,6 @@ body.ticket-morphing #ov-about #about-card *{
 .sv-link-row:hover::after{
   border-color:rgba(238,246,255,.82);
   transform:translateX(2px) rotate(45deg);
-}
-.sv-download-btn{
-  align-self:flex-start;
-  margin:0 0 0 74px;
-  padding:7px 12px;
-  border:1px solid rgba(205,225,255,.14);
-  background:rgba(255,255,255,.025);
-  color:rgba(214,228,255,.68);
-  font-family:'Space Mono','Pretendard',monospace;
-  font-size:var(--fs-min);
-  letter-spacing:.14em;
-  text-transform:uppercase;
-  text-decoration:none;
-  transition:background .22s ease,border-color .22s ease,color .22s ease,transform .22s ease;
-}
-.sv-download-btn:hover{
-  background:rgba(255,255,255,.055);
-  border-color:rgba(205,225,255,.24);
-  color:rgba(238,246,255,.9);
-  transform:translateX(3px);
 }
 .sv-shelf{
   position:relative;
@@ -4181,7 +4162,7 @@ body.ticket-morphing #ov-about #about-card *{
             <div class="sv-line-label sv-to">To</div>
             <div class="sv-name">You</div>
             <div class="sv-address-lines"><span></span><span></span></div>
-            <div class="sv-ps">P.S. 다음 큐레이팅 함께하시죠.</div>
+            <div class="sv-ps">P.S. 다음 큐레이팅에서 다시 만나요.</div>
           </div>
           <div class="sv-contact-panel">
             <div class="sv-role">운영 기획자 · Operations PM</div>
@@ -4194,7 +4175,6 @@ body.ticket-morphing #ov-about #about-card *{
                 <span>Resume</span>
                 <strong>Resume & Career Sheet</strong>
               </a>
-              <a href="./assets/resume/운영 기획자_황혜림_이력서 및 경력기술서.pdf" class="sv-download-btn" download>Download PDF</a>
             </div>
           </div>
         </div>
