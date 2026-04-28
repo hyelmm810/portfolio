@@ -1385,23 +1385,23 @@ body.atelier-tune .cube-wrap.tune-selected .cube-face.f-front{
 }
 
 /* Production Atelier layout: fixed coordinates, no localStorage/grid fallback. */
-body.atelier-production-fixed .at-cubes{
+body.atelier-production-fixed .at-jar.atelier-fixed-stack .at-cubes{
   display:block;
   height:var(--fixed-stack-h, 190px);
 }
-body.atelier-production-fixed .at-cubes.at-cubes-2col{
+body.atelier-production-fixed .at-jar.atelier-fixed-stack .at-cubes.at-cubes-2col{
   display:block;
 }
-body.atelier-production-fixed .cube-wrap{
+body.atelier-production-fixed .at-jar.atelier-fixed-stack .cube-wrap{
   position:absolute;
   left:var(--fixed-left, 0px);
   top:var(--fixed-top, 0px);
   margin:0;
   transform:rotate(var(--wr,0deg));
 }
-body.atelier-production-fixed .at-cubes.at-cubes-2col .cube-wrap,
-body.atelier-production-fixed .at-cubes.at-cubes-2col .cube-wrap:nth-child(odd),
-body.atelier-production-fixed .at-cubes.at-cubes-2col .cube-wrap:nth-child(even){
+body.atelier-production-fixed .at-jar.atelier-fixed-stack .at-cubes.at-cubes-2col .cube-wrap,
+body.atelier-production-fixed .at-jar.atelier-fixed-stack .at-cubes.at-cubes-2col .cube-wrap:nth-child(odd),
+body.atelier-production-fixed .at-jar.atelier-fixed-stack .at-cubes.at-cubes-2col .cube-wrap:nth-child(even){
   transform:rotate(var(--wr,0deg));
 }
 .cube-tuner{
@@ -5698,10 +5698,11 @@ lerpedGallery=0;
 
     current.forEach((jar, jarIndex) => {
       const spec = fixed[jarIndex];
-      if(!spec) return;
+      if(!spec || jarIndex < 2) return;
       const holder = jar.querySelector(".at-cubes");
       const wraps = Array.from(jar.querySelectorAll(".cube-wrap"));
       if(!holder) return;
+      jar.classList.add("atelier-fixed-stack");
       holder.style.setProperty("--fixed-stack-h", spec.h + "px");
       wraps.forEach((wrap, cubeIndex) => {
         const pos = spec.p[cubeIndex];
