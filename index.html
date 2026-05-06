@@ -1293,7 +1293,7 @@ nav{
   padding:32px;
 }
 .mobile-gate-inner{
-  width:min(360px,100%);
+  width:min(440px,calc(100vw - 40px));
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -1331,20 +1331,24 @@ nav{
 }
 .mobile-gate-title{
   font-family:'Pretendard',sans-serif;
-  font-size:var(--fs-card-title);
+  font-size:clamp(14px,4vw,18px);
   font-weight:700;
   line-height:1.72;
   color:#f2f5fa;
   word-break:keep-all;
+  white-space:nowrap;
+  text-align:center;
 }
 .mobile-gate-sub{
   margin-top:13px;
   font-family:'Pretendard',sans-serif;
-  font-size:var(--fs-body-sm);
+  font-size:clamp(11px,3.2vw,13px);
   font-weight:300;
   line-height:1.8;
   color:rgba(216,226,242,.62);
   word-break:keep-all;
+  white-space:nowrap;
+  text-align:center;
 }
 .mobile-share-btn{
   margin-top:34px;
@@ -4199,10 +4203,14 @@ body.ticket-morphing #ov-about #about-card *{
                 <span>Email</span>
                 <strong>hyelmm810@gmail.com</strong>
               </a>
-              <a href="./assets/resume/운영 기획자_황혜림_이력서 및 경력기술서.pdf" class="sv-link-row" target="_blank" rel="noopener">
-                <span>Resume</span>
-                <strong>Resume & Career Sheet</strong>
-              </a>
+                        <a href="./assets/resume/이력서_황혜림.pdf" class="sv-link-row" target="_blank" rel="noopener">
+                            <span>Resume</span>
+                            <strong>이력서</strong>
+                        </a>
+                        <a href="./assets/resume/경력기술서_황혜림.pdf" class="sv-link-row" target="_blank" rel="noopener">
+                            <span>Career</span>
+                            <strong>경력기술서</strong>
+                        </a>
             </div>
           </div>
         </div>
