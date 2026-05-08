@@ -38,24 +38,7 @@
   --fs-profile-title:clamp(3rem,5.5vw,5.6rem);
 }
 html,body{width:100%;height:100%;overflow:hidden;background:#000;}
-body{
-  font-family:'Space Mono','Pretendard',monospace;
-  color:#b8bfcc;
-  cursor:none;
-  -webkit-user-select:none;
-  user-select:none;
-  -webkit-touch-callout:none;
-}
-img{
-  -webkit-user-drag:none;
-  user-drag:none;
-  -webkit-user-select:none;
-  user-select:none;
-}
-input,textarea,[contenteditable="true"]{
-  -webkit-user-select:text;
-  user-select:text;
-}
+body{font-family:'Space Mono','Pretendard',monospace;color:#b8bfcc;cursor:none;}
 body.theme-light{
   background:#fff;
   color:#1f2937;
@@ -5463,19 +5446,6 @@ body.ticket-morphing #ov-about #about-card *{
 </div><!-- /ov-contact -->
 
 <script>
-
-/* Basic client-side deterrents for copy/save actions */
-document.addEventListener('contextmenu', e => e.preventDefault());
-document.addEventListener('dragstart', e => e.preventDefault());
-document.addEventListener('selectstart', e => e.preventDefault());
-document.addEventListener('copy', e => e.preventDefault());
-document.addEventListener('cut', e => e.preventDefault());
-document.addEventListener('keydown', e => {
-  const key = (e.key || '').toLowerCase();
-  if((e.metaKey || e.ctrlKey) && ['c','s','u','p'].includes(key)){
-    e.preventDefault();
-  }
-});
 
 /* ══════════════════════════════════════
    GIFT BOX JS
